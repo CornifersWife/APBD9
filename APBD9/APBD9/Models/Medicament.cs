@@ -7,4 +7,5 @@ public class Medicament {
     public string Type { get; set; }
     
     public ICollection<Prescription_Medicament> PrescriptionMedicaments { get; set; }
+  
 }
