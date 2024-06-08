@@ -1,10 +1,6 @@
-using System.Net;
 using APBD9.Context;
 using APBD9.Models;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Infrastructure;
-using Microsoft.VisualBasic;
 
 namespace APBD9.Controllers;
 
@@ -15,20 +11,20 @@ public class TripsController(HospitalDbContext dbContext) : ControllerBase {
 
     [HttpPost]
     [Route("prescriptions")]
-    public IActionResult AddPrescription(Patient patient,[FromBody] int IdDoctor, IEnumerable<PrescribedMedicament> medicaments, DateTime Date,
-        DateTime DueDate) {
+    public IActionResult AddPrescription(Patient patient,[FromBody] int idDoctor, IEnumerable<PrescribedMedicament> medicaments, DateTime date,
+        DateTime dueDate) {
 
         var foundPatient = dbContext.Patients
             .FirstOrDefault(e => 
                 e.IdPatient == patient.IdPatient &&
                 e.FirstName == patient.FirstName &&
                 e.LastName == patient.LastName &&
-                e.BirthDate == patient.BirthDate
-                ,null);
+                e.BirthDate == patient.BirthDate,
+                null);
 
-        var doctor = dbContext.Doctors.FirstOrDefault(e => e.IdDoctor == IdDoctor,null);
+        var doctor = dbContext.Doctors.FirstOrDefault(e => e.IdDoctor == idDoctor,null);
         if (doctor is null)
-            return BadRequest("No doctor with given Id Exsits");
+            return BadRequest("No doctor with given Id Exists");
 
         if (medicaments.Count() > 10)
             return BadRequest("The prescription exceeds the maximum amount of medicaments for one prescriptions");
@@ -40,7 +36,7 @@ public class TripsController(HospitalDbContext dbContext) : ControllerBase {
         if (medicamentsMissing.Any())
             return BadRequest($"one or more medicaments are not in the database\n {medicamentsMissing}");
 
-        if (DueDate < Date)
+        if (dueDate < date)
             return BadRequest("'DueDate' has to be after 'Date'");
 
 
@@ -52,8 +48,8 @@ public class TripsController(HospitalDbContext dbContext) : ControllerBase {
 
 
             var newPrescription = new Prescription() {
-                Date = Date,
-                DueDate = DueDate,
+                Date = date,
+                DueDate = dueDate,
                 IdDoctor = doctor.IdDoctor,
                 IdPatient = patient.IdPatient
             };
@@ -74,6 +70,6 @@ public class TripsController(HospitalDbContext dbContext) : ControllerBase {
             trans.Commit();
         }
         
-        return StatusCode(201,"Object created succesfully");
+        return StatusCode(201,"Object created successfully");
     }
 }
